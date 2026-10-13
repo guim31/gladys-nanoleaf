@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-13
+
 ### Added
 
 - Nanoleaf light panels (Light Panels, Canvas, Shapes, Elements, Lines) on the
@@ -30,4 +32,5 @@ the notes of the version's GitHub Release.
   effect running and the last gesture.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/guim31/gladys-nanoleaf/commits/main
+[Unreleased]: https://github.com/guim31/gladys-nanoleaf/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-nanoleaf/releases/tag/v1.0.1

@@ -1,6 +1,6 @@
 {
   "name": "gladys-nanoleaf",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant integration for Nanoleaf light panels, over the local Nanoleaf OpenAPI.",
   "type": "module",

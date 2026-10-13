@@ -8,8 +8,8 @@
     "de": "Nanoleaf-Panels im lokalen Netzwerk: Farben, Weißtöne, Effekte, Touch-Gesten.",
     "es": "Paneles Nanoleaf en la red local: colores, blancos, efectos, gestos táctiles."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/guim31/gladys-nanoleaf:1.0.0",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/guim31/gladys-nanoleaf:1.0.1",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-nanoleaf/main/cover.png",
   "categories": ["lighting"],
