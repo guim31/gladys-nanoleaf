@@ -1,45 +1,79 @@
 // -----------------------------------------------------------------------------
-// Integration configuration.
+// Integration configuration: defaults (they mirror the `default` values of the
+// manifest `config_schema`, see test/manifest.test.js) and normalization, so
+// the rest of the code never deals with strings, blanks or `undefined`.
 //
-// The configuration is filled in by the user in Gladys, from the `config_schema`
-// declared in `gladys-assistant-integration.json`. The SDK fetches it for you
-// (`gladys.getConfig()`) and notifies you of every change through
-// `gladys.onConfigUpdated()`.
-//
-// This module only provides defaults and normalizes the received object, so the
-// rest of the code never has to deal with `undefined`.
+// The tokens are not here: the pairing writes them under /data (src/store.js).
 // -----------------------------------------------------------------------------
 
-// Defaults: they MUST stay consistent with the `default` values declared in the
-// `config_schema` of the manifest.
+import { NANOLEAF_PORT } from './nanoleaf/model.js';
+
+export const LANGUAGES = ['en', 'fr', 'de', 'es'];
+
 export const DEFAULT_CONFIG = {
-  latitude: 48.8566, // Paris
-  longitude: 2.3522,
-  unit: 'celsius', // 'celsius' | 'fahrenheit'
-  // Seconds between two reads of the polled sensors. Gladys polls at most once
-  // a minute: slower intervals are applied by skipping polls (see
-  // createPoller in src/devices/index.js).
-  poll_frequency: 300,
-  // Reserved key (NOT in config_schema): because the manifest declares both
-  // 'local' and 'cloud' in its `transports` field, Gladys shows a standard
-  // "Prefer the local connection" toggle and sends the user's choice here.
-  // Read-only for the integration; defaults to true.
-  GLADYS_PREFER_LOCAL: true,
+  hosts: '',
+  language: 'fr',
 };
 
+const ADDRESS = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?::(\d{1,5}))?$/;
+const MAX_HOSTS = 32;
+
 /**
- * Merge the user config with the defaults.
- * @param {Record<string, unknown>} raw config returned by the SDK
+ * Parse one address: an IPv4, with an optional port (16021 by default).
+ * Host names are refused: the container cannot resolve `.local` names.
+ * @returns {{ host: string, port: number } | null}
+ */
+export function parseAddress(raw) {
+  const match = typeof raw === 'string' ? raw.trim().match(ADDRESS) : null;
+  if (!match) {
+    return null;
+  }
+  const parts = match.slice(1, 5).map(Number);
+  const port = match[5] === undefined ? NANOLEAF_PORT : Number(match[5]);
+  if (!parts.every((part) => part <= 255) || port < 1 || port > 65535) {
+    return null;
+  }
+  // Leading zeros would make another string for the same address.
+  return { host: parts.join('.'), port };
+}
+
+/**
+ * Parse the manual address list (commas, semicolons, spaces or new lines).
+ * @returns {{ hosts: Array<{ host: string, port: number }>, invalid: string[] }}
+ */
+export function parseHosts(raw) {
+  const hosts = [];
+  const invalid = [];
+  const entries = typeof raw === 'string' ? raw.split(/[\s,;]+/) : [];
+  for (const entry of entries) {
+    const text = entry.trim();
+    if (!text) {
+      continue;
+    }
+    const address = parseAddress(text);
+    if (!address) {
+      invalid.push(text);
+    } else if (
+      !hosts.some((known) => known.host === address.host && known.port === address.port) &&
+      hosts.length < MAX_HOSTS
+    ) {
+      hosts.push(address);
+    }
+  }
+  return { hosts, invalid };
+}
+
+/**
+ * @param {Record<string, unknown>} raw the configuration returned by the SDK
  */
 export function normalizeConfig(raw = {}) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  const { hosts, invalid } = parseHosts(
+    typeof source.hosts === 'string' ? source.hosts : DEFAULT_CONFIG.hosts,
+  );
   return {
-    ...DEFAULT_CONFIG,
-    ...raw,
-    // Force the types: config may arrive as strings from a form.
-    latitude: Number(raw.latitude ?? DEFAULT_CONFIG.latitude),
-    longitude: Number(raw.longitude ?? DEFAULT_CONFIG.longitude),
-    poll_frequency: Number(raw.poll_frequency ?? DEFAULT_CONFIG.poll_frequency),
-    // The preference is a boolean; anything but an explicit false means true.
-    GLADYS_PREFER_LOCAL: raw.GLADYS_PREFER_LOCAL !== false,
+    hosts,
+    invalidHosts: invalid,
+    language: LANGUAGES.includes(source.language) ? source.language : DEFAULT_CONFIG.language,
   };
 }

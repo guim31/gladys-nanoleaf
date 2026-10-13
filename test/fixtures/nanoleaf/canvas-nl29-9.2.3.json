@@ -1,0 +1,163 @@
+{
+  "name": "Canvas 4C8E",
+  "serialNo": "S19124C0002",
+  "manufacturer": "Nanoleaf",
+  "firmwareVersion": "9.2.3",
+  "hardwareVersion": "1.2-4",
+  "model": "NL29",
+  "cloudHash": {},
+  "discovery": {},
+  "effects": {
+    "effectsList": [
+      "Blaze",
+      "Cotton Candy",
+      "Fireplace",
+      "Hot Sauce",
+      "Lightscape",
+      "Moonlight",
+      "Morning Sky",
+      "Northern Lights",
+      "Starlight"
+    ],
+    "select": "*Solid*"
+  },
+  "firmwareUpgrade": {},
+  "panelLayout": {
+    "globalOrientation": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "layout": {
+      "numPanels": 12,
+      "sideLength": 100,
+      "positionData": [
+        {
+          "panelId": 1000,
+          "x": 0,
+          "y": 0,
+          "o": 0,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1137,
+          "x": 100,
+          "y": 100,
+          "o": 60,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1274,
+          "x": 200,
+          "y": 0,
+          "o": 120,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1411,
+          "x": 300,
+          "y": 100,
+          "o": 180,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1548,
+          "x": 400,
+          "y": 0,
+          "o": 240,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1685,
+          "x": 500,
+          "y": 100,
+          "o": 300,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1822,
+          "x": 600,
+          "y": 0,
+          "o": 0,
+          "shapeType": 2
+        },
+        {
+          "panelId": 1959,
+          "x": 700,
+          "y": 100,
+          "o": 60,
+          "shapeType": 2
+        },
+        {
+          "panelId": 2096,
+          "x": 800,
+          "y": 0,
+          "o": 120,
+          "shapeType": 2
+        },
+        {
+          "panelId": 2233,
+          "x": 900,
+          "y": 100,
+          "o": 180,
+          "shapeType": 2
+        },
+        {
+          "panelId": 2370,
+          "x": 1000,
+          "y": 0,
+          "o": 240,
+          "shapeType": 2
+        },
+        {
+          "panelId": 2507,
+          "x": 1100,
+          "y": 100,
+          "o": 300,
+          "shapeType": 2
+        }
+      ]
+    }
+  },
+  "schedules": {},
+  "state": {
+    "brightness": {
+      "value": 60,
+      "max": 100,
+      "min": 0
+    },
+    "colorMode": "hs",
+    "ct": {
+      "value": 2700,
+      "max": 6500,
+      "min": 1200
+    },
+    "hue": {
+      "value": 210,
+      "max": 360,
+      "min": 0
+    },
+    "on": {
+      "value": true
+    },
+    "sat": {
+      "value": 80,
+      "max": 100,
+      "min": 0
+    }
+  },
+  "rhythm": {
+    "rhythmConnected": true,
+    "rhythmActive": false,
+    "rhythmId": 7,
+    "hardwareVersion": "2.4",
+    "firmwareVersion": "2.4.3",
+    "auxAvailable": false,
+    "rhythmMode": 0,
+    "rhythmPos": {
+      "x": 0,
+      "y": 0,
+      "o": 0
+    }
+  }
+}

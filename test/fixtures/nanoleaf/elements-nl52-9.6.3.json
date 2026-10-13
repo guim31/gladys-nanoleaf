@@ -1,0 +1,104 @@
+{
+  "name": "Elements 3F90",
+  "serialNo": "S21052E0004",
+  "manufacturer": "Nanoleaf",
+  "firmwareVersion": "9.6.3",
+  "hardwareVersion": "1.0-3",
+  "model": "NL52",
+  "cloudHash": {},
+  "discovery": {},
+  "effects": {
+    "effectsList": [
+      "Evening Glow",
+      "Fireplace",
+      "Forest Stroll",
+      "Morning Sky",
+      "Sunrise",
+      "Wood Grain"
+    ],
+    "select": "*Solid*"
+  },
+  "firmwareUpgrade": {},
+  "panelLayout": {
+    "globalOrientation": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "layout": {
+      "numPanels": 6,
+      "sideLength": 134,
+      "positionData": [
+        {
+          "panelId": 1000,
+          "x": 0,
+          "y": 0,
+          "o": 0,
+          "shapeType": 14
+        },
+        {
+          "panelId": 1137,
+          "x": 134,
+          "y": 134,
+          "o": 60,
+          "shapeType": 14
+        },
+        {
+          "panelId": 1274,
+          "x": 268,
+          "y": 0,
+          "o": 120,
+          "shapeType": 14
+        },
+        {
+          "panelId": 1411,
+          "x": 402,
+          "y": 134,
+          "o": 180,
+          "shapeType": 14
+        },
+        {
+          "panelId": 1548,
+          "x": 536,
+          "y": 0,
+          "o": 240,
+          "shapeType": 14
+        },
+        {
+          "panelId": 0,
+          "x": 0,
+          "y": -134,
+          "o": 0,
+          "shapeType": 12
+        }
+      ]
+    }
+  },
+  "schedules": {},
+  "state": {
+    "brightness": {
+      "value": 45,
+      "max": 100,
+      "min": 0
+    },
+    "colorMode": "ct",
+    "ct": {
+      "value": 2700,
+      "max": 4000,
+      "min": 1500
+    },
+    "hue": {
+      "value": 30,
+      "max": 360,
+      "min": 0
+    },
+    "on": {
+      "value": false
+    },
+    "sat": {
+      "value": 20,
+      "max": 100,
+      "min": 0
+    }
+  }
+}

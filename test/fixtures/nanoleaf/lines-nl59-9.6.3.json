@@ -1,0 +1,134 @@
+{
+  "name": "Lines 9A04",
+  "serialNo": "S21359L0005",
+  "manufacturer": "Nanoleaf",
+  "firmwareVersion": "9.6.3",
+  "hardwareVersion": "1.1-0",
+  "model": "NL59",
+  "cloudHash": {},
+  "discovery": {},
+  "effects": {
+    "effectsList": [
+      "Bright Lights",
+      "Cotton Candy",
+      "Electric Ocean",
+      "Fireworks",
+      "Lightscape",
+      "Neon",
+      "Northern Lights",
+      "Prism"
+    ],
+    "select": "*Solid*"
+  },
+  "firmwareUpgrade": {},
+  "panelLayout": {
+    "globalOrientation": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "layout": {
+      "numPanels": 10,
+      "sideLength": 300,
+      "positionData": [
+        {
+          "panelId": 1000,
+          "x": 0,
+          "y": 0,
+          "o": 0,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1137,
+          "x": 300,
+          "y": 300,
+          "o": 60,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1274,
+          "x": 600,
+          "y": 0,
+          "o": 120,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1411,
+          "x": 900,
+          "y": 300,
+          "o": 180,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1548,
+          "x": 1200,
+          "y": 0,
+          "o": 240,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1685,
+          "x": 1500,
+          "y": 300,
+          "o": 300,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1822,
+          "x": 1800,
+          "y": 0,
+          "o": 0,
+          "shapeType": 18
+        },
+        {
+          "panelId": 1959,
+          "x": 2100,
+          "y": 300,
+          "o": 60,
+          "shapeType": 18
+        },
+        {
+          "panelId": 2096,
+          "x": 2400,
+          "y": 0,
+          "o": 120,
+          "shapeType": 18
+        },
+        {
+          "panelId": 0,
+          "x": 0,
+          "y": -300,
+          "o": 0,
+          "shapeType": 19
+        }
+      ]
+    }
+  },
+  "schedules": {},
+  "state": {
+    "brightness": {
+      "value": 100,
+      "max": 100,
+      "min": 0
+    },
+    "colorMode": "ct",
+    "ct": {
+      "value": 4000,
+      "max": 6500,
+      "min": 1200
+    },
+    "hue": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "on": {
+      "value": true
+    },
+    "sat": {
+      "value": 0,
+      "max": 100,
+      "min": 0
+    }
+  }
+}

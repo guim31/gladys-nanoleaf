@@ -1,61 +1,169 @@
-# Demo Devices Template
+# Nanoleaf
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Control your **Nanoleaf** light panels from Gladys Assistant, **on the local
+network**, through the Nanoleaf OpenAPI: on/off, brightness, color, white
+temperature, effects, and the **touch gestures** of the panels as scene
+triggers. No cloud, no account.
 
-## What you get
+> **Developed without the hardware: feedback welcome.** The integration is
+> built and tested against the answers documented by Nanoleaf, not against
+> real panels. Please report what works and what does not in the
+> [issues](https://github.com/guim31/gladys-nanoleaf/issues).
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+This integration is not affiliated with Nanoleaf.
 
-## Configuration
+## Requirements
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+- Gladys Assistant **5.1.0** or later.
+- Panels with a Wi-Fi controller that speaks the Nanoleaf OpenAPI: **Light
+  Panels** (Aurora), **Canvas**, **Shapes** (hexagons, triangles, mini
+  triangles), **Elements** and **Lines**, on the same network as Gladys.
+- The panels set up in the Nanoleaf app first (Wi-Fi network).
+- **Nanoleaf Essentials** bulbs and strips (Matter / Thread) do not speak the
+  OpenAPI: add them to Gladys through Matter instead.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+## Installation and pairing
 
-## Actions
+1. In Gladys, open **Integrations** → **Install from GitHub** and enter
+   `https://github.com/guim31/gladys-nanoleaf` (or install **Nanoleaf** from
+   the catalog once it is listed).
+2. Open the **Configuration** tab of the integration. The panels on the same
+   network as Gladys are found automatically (mDNS, and SSDP for the old Light
+   Panels). If yours is not found, type its IP address in **IP addresses of
+   Nanoleaf controllers** (several addresses: separate them with commas).
+3. On the panels, **hold the power button 5 to 7 seconds** until the lights
+   flash, then click **Pair** in the Configuration tab **within 30 seconds**.
+   The message under the button names the panels paired. To pair one address
+   only, type it in the **IP address (optional)** field of the button.
+4. Open the **Discovery** tab and add the device.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+**Language of the device names**: the language of the feature names of the
+new devices (French by default). Gladys keeps the names given when the device
+is added.
 
-## Scenes
+The pairing token is stored in the integration's `/data` volume, never in the
+configuration nor in the logs.
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+## The device
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+One device per controller (one set of panels), with these features:
 
-## Dashboard
+| Feature               | What it does                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Light**             | On / off.                                                                                               |
+| **Brightness**        | 0 to 100 %. 0 turns the panels off.                                                                     |
+| **Color**             | Any color (hue and saturation). Not on Elements, which only show white.                                 |
+| **Color temperature** | The white, in kelvins, within the range of the controller (1200-6500 K on most).                        |
+| **Effect**            | The effects of **this** controller, as in the Nanoleaf app. **None**: back to the plain color or white. |
+| **Connected**         | Read only: the controller answers. Off at the wall, the panels are also shown off.                      |
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+A brightness, a color or a white also turns the panels on, like the other
+Gladys lights. A change made in the Nanoleaf app, with the buttons or by a
+Nanoleaf schedule shows in Gladys within a second. A new effect created in the
+app joins the **Effect** list within a minute.
+
+## Widget
+
+Add the **Nanoleaf** widget to a dashboard and choose the panels in its
+settings. It shows:
+
+- the brightness, live;
+- **Light** (on or off), **Effect** (the effect running, the color or the
+  white) and, on touch panels, **Last gesture** with the panel number;
+- up to four **favorite effects** as buttons (the running one carries a check
+  mark). Type their names in **Favorite effects**, separated by commas;
+  empty, the first three effects of the list are shown;
+- with three favorites or fewer, a **Turn on** / **Turn off** button.
+
+## Scene trigger
+
+**Gesture on a Nanoleaf**: a tap or a swipe on touch panels (Canvas, Shapes,
+Elements). Filters, all optional:
+
+- **Nanoleaf**: the panels; empty for any;
+- **Gesture**: **Single tap**, **Double tap**, **Swipe up**, **Swipe down**,
+  **Swipe left**, **Swipe right**; empty for every gesture;
+- **Panel number**: for taps only (swipes cover the whole layout). Tap the
+  panel, then read its number on the **Last gesture** line of the widget.
+  The numbers are given by the controller: they change if the panels are
+  rearranged.
+
+The scene can use the gesture (`single_tap`, `double_tap`, `swipe_up`…) and
+the panel number as variables.
+
+## Scene actions
+
+- **Start a Nanoleaf effect**: an effect by its name, as written in the
+  Nanoleaf app (upper or lower case does not matter), with an optional
+  brightness. The name of the effect started is available to the next
+  actions. An unknown name fails the action and lists the effects.
+- **Show a color on a Nanoleaf**: a color from the list, or **Other color**
+  in `#RRGGBB` form, for a number of seconds (1 to 3600), with an optional
+  brightness; then the panels go back to what they showed before (effect,
+  color or white, brightness, on or off). A command on the panels in the
+  meantime cancels the return. Not on Elements.
+
+On, off, brightness, color, white and the effect list are also available as
+the usual Gladys device actions.
+
+## Configuration buttons
+
+- **Pair**: see _Installation and pairing_.
+- **Search for Nanoleaf controllers**: looks again and lists the paired
+  controllers (answering or not) and those still to pair.
+
+## Scene examples
+
+- **Double tap to turn the living room off**: trigger _Gesture on a Nanoleaf_,
+  gesture _Double tap_; action: turn off the living room lights.
+- **A panel as a doorbell light**: when the doorbell rings, _Show a color on a
+  Nanoleaf_, blue, 20 seconds, brightness 100 %.
+- **Swipe for the evening mood**: _Gesture on a Nanoleaf_, gesture _Swipe
+  down_; actions: _Start a Nanoleaf effect_ "Northern Lights" at 30 %, and dim
+  the other lights.
+- **Sunset**: at sunset, _Start a Nanoleaf effect_ "Sundown".
+
+## Refresh and network use
+
+- Each controller keeps **one connection open** to the integration's event
+  stream (Nanoleaf OpenAPI `/events`): changes and gestures arrive at once.
+- Each controller is also **read once a minute** (a few kilobytes), to follow
+  the effect list and notice a controller that went away.
+- The network is **searched every 15 minutes** (through Gladys), to follow an
+  address that changed.
+- Everything stays on the local network: port 16021 of the controllers, no
+  cloud. The OpenAPI has no published quota; the integration stays far below
+  what the Nanoleaf app does.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"No Nanoleaf in pairing mode"**: hold the power button longer (5 to 7
+  seconds, until the lights flash), then click **Pair** right away: the
+  pairing window lasts 30 seconds.
+- **"No Nanoleaf found"**: check that the panels are on the same network as
+  Gladys (not a guest network), then type their IP address (shown in the
+  Nanoleaf app or in your router).
+- **"A Nanoleaf refuses its access token"**: the controller was reset or its
+  tokens were deleted. Pair it again: the device keeps its features and its
+  history.
+- **The device stays "not answering"**: the controller is off at the wall, or
+  its address changed and the search did not find it. Click **Search for
+  Nanoleaf controllers**, or type the new address.
+- **A gesture does nothing**: only Canvas, Shapes and Elements have touch;
+  check that touch is not turned off in the Nanoleaf app, and that the device
+  is chosen in the trigger (or left empty).
+- More detail in the integration logs with `LOG_LEVEL=debug`.
+
+## Limits
+
+- Developed without the hardware: the answers of the controllers come from
+  the Nanoleaf documentation.
+- The Nanoleaf **Essentials** (Matter / Thread), the **4D / Screen Mirror**
+  kit and the **Skylight** are not covered.
+- The **Rhythm** music mode, scenes and schedules of the Nanoleaf app, the
+  layout and the per-panel colors are not available.
+- The touch of each panel (real-time stream) needs a UDP port the Gladys
+  container cannot open: only the gestures are available.
+- Effects whose name starts or ends with a space are left out of the list.
+- The return after **Show a color on a Nanoleaf** does not survive a restart
+  of the integration during the wait.
