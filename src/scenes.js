@@ -1,41 +1,62 @@
 // -----------------------------------------------------------------------------
-// Scene actions (SDK v0.14+, Gladys 5.1+).
+// Scene action handlers (manifest `scene_actions`, Gladys 5.1+).
 //
-// A scene action is an OPERATION a scene author places in a scene, with
-// parameters and a result: "identify this device", "take a snapshot", "clean
-// these rooms". Each one is declared in the manifest `scene_actions` field
-// (key, label, `fields` in the config_schema grammar, scalar `outputs`) and
-// handled here, keyed by that same `key`; index.js registers every entry with
-// `gladys.onSceneAction(key, ...)`.
+// On, brightness, colour, white and the effect list are already Gladys scene
+// actions on the device features. These two add what a feature cannot do:
+//   - run_effect: start an effect typed by name (a scene variable works too),
+//     with its brightness, in one step;
+//   - show_color: a colour for a few seconds, then back to what the panels
+//     showed (a notification light: "the washing machine is done").
 //
-// Scene TRIGGERS are the other direction ("this happened"): they are fired by
-// the device that observes the event, see src/devices/motionSensor.js.
-//
-// The rules that matter:
-//   - `fields` arrive RESOLVED: scene variables substituted, defaults applied,
-//     validated by the core; a `"source": "devices"` field is the chosen
-//     device external_id;
-//   - resolve an object of the declared `outputs` (scalars only), readable by
-//     the following actions of the scene, or `undefined` for none. Keys not
-//     declared in the manifest are dropped by the core;
-//   - throwing fails THIS action only: the scene logs it and continues. A
-//     scene action is never a condition: return an output and let the scene
-//     author gate on it;
-//   - never fire a scene event as a consequence of a received action: a scene
-//     bound to that event would loop through the integration.
+// The trigger (`gesture`) is fired by the hub (src/hub.js), never as a
+// consequence of these actions: a scene bound to it would loop.
 // -----------------------------------------------------------------------------
 
-import { createLogger } from '@gladysassistant/integration-sdk';
-import { signalDevice } from './devices/index.js';
+import { parseHexColor } from './nanoleaf/model.js';
 
-const logger = createLogger({ name: 'scenes' });
+// The colours of the `color` list. The keys are stored in scenes: permanent.
+export const PRESET_COLORS = {
+  red: 0xff0000,
+  orange: 0xff8000,
+  yellow: 0xffd000,
+  green: 0x00ff00,
+  cyan: 0x00ffff,
+  blue: 0x0000ff,
+  purple: 0x8000ff,
+  pink: 0xff0080,
+  white: 0xffffff,
+};
+
+/** The colour of a scene action: the typed one, else the chosen one. */
+export function resolveColor({ color, custom_color: custom }) {
+  if (typeof custom === 'string' && custom.trim() !== '') {
+    const typed = parseHexColor(custom);
+    if (typed === null) {
+      throw new Error(`"${custom}" is not a colour: use the #RRGGBB form, e.g. #FF8800`);
+    }
+    return typed;
+  }
+  const preset = PRESET_COLORS[color];
+  if (preset === undefined) {
+    throw new Error(`Unknown colour "${color}"`);
+  }
+  return preset;
+}
 
 export const SCENE_ACTIONS = {
-  // The ack is awaited under the action's `timeout_seconds` (15 s in the
-  // manifest), counted from the moment the scene reaches the action.
-  async identify_device(gladys, { fields, config }) {
-    logger.info(`Scene action identify_device <- ${fields.device}`);
-    const signalled = await signalDevice(gladys, fields.device, config);
-    return { signalled };
+  async run_effect(hub, { fields }) {
+    const effect = await hub.runEffect(fields.device, {
+      effect: fields.effect,
+      brightness: fields.brightness,
+    });
+    return { effect };
+  },
+
+  async show_color(hub, { fields }) {
+    await hub.showColor(fields.device, {
+      color: resolveColor(fields),
+      seconds: fields.duration,
+      brightness: fields.brightness,
+    });
   },
 };

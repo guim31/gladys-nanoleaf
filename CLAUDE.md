@@ -5,9 +5,10 @@ contributors.
 
 ## What this is
 
-A Gladys Assistant **external integration**: a Node.js service (Node 22+, ESM,
-no build step) that runs in its own sandboxed Docker container and talks to
-Gladys through
+A Gladys Assistant **external integration** for Nanoleaf light panels (Light
+Panels, Canvas, Shapes, Elements, Lines), driven over the local Nanoleaf
+OpenAPI (HTTP, port 16021): a Node.js service (Node 22+, ESM, no build step)
+that runs in its own sandboxed Docker container and talks to Gladys through
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js),
 its only runtime dependency. It started from the official JavaScript template.
 
@@ -31,16 +32,25 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only (registerHandlers + shutdown)
+src/app.js                        every SDK handler, wired to the hub (the tests use it too)
+src/hub.js                        NanoleafHub: discovery, pairing, event streams, reads, states, commands, trigger
+src/devices.js                    controller -> Gladys device, values, the request of each command
+src/discovery.js                  mDNS / SSDP answers relayed by the core
+src/nanoleaf/client.js            OpenAPI HTTP client (fetch, timeouts, errors without URL)
+src/nanoleaf/events.js            server-sent event stream (/events), parser and reconnection
+src/nanoleaf/model.js             OpenAPI answers normalized, models, gestures, colour conversion
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
 src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/texts.js                      connection status, "Pair" and "Search" reports, four languages
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/store.js                      /data/nanoleaf.json (paired controllers and tokens, 0600, atomic writes)
+src/problems.js                   one log line when a failure starts, one when it ends
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
+test/                             node --test, against the SDK's fake Gladys and simulated controllers
+test/helpers/fakeNanoleaf.js      simulated controllers: a fake fetch, SSE streams, scan results
+test/fixtures/nanoleaf/           controller descriptions (from the OpenAPI documentation), anonymized
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +80,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): manifest texts, action and widget messages,
+  feature names, and `docs/{en,fr,de,es}.md` with the same sections.
+  `test/i18n.test.js` checks them.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +245,58 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Nanoleaf (gladys-nanoleaf)
+
+**Protocole** (référence : la documentation OpenAPI Nanoleaf ; l'intégration `nanoleaf` de Home
+Assistant, Apache 2.0, pour les modèles et les gestes ; aionanoleaf, LGPL-3.0, lue seulement)
+
+- HTTP sans TLS, port **16021**, `/api/v1/…`. Appairage : bouton marche tenu 5 à 7 s (les lumières
+  clignotent), puis `POST /api/v1/new` **dans les 30 s** → `{ "auth_token" }` ; 403 sinon. Le
+  jeton est **dans l'URL** de chaque requête (`/api/v1/<jeton>/…`) : aucun message d'erreur, aucun
+  journal ne cite une URL (`src/nanoleaf/client.js` masque même celles qu'un `fetch` citerait).
+  401 = jeton refusé (contrôleur réinitialisé) : on le dit, on n'insiste pas, « Appairer » le
+  remplace.
+- `GET /api/v1/<jeton>/` donne tout : `serialNo` (**identifiant stable**, base des `external_id`),
+  `name` (imprimé sur l'appareil, « Shapes 7D21 »), `model` (NL22 Light Panels, NL29 Canvas, NL42
+  Shapes, NL52 Elements, NL59 Lines), `effects.effectsList` / `effects.select`, `state`
+  (`on`, `brightness` 0-100, `hue` 0-360, `sat` 0-100, `ct` en K, `colorMode` `hs`/`ct`/`effect`).
+- **La documentation montre `ct.max: 100`** : on retombe sur 1200-6500 K quand la plage n'a pas de
+  sens. Elements : blanc seul (pas de couleur), 1500-4000 K.
+- `PUT /state` : `{ "brightness": { "value" } }`… **`on` en dernier** dans un même corps (ordre
+  appliqué par le firmware). `PUT /effects` `{ "select": nom }`. Noms réservés étoilés : `*Solid*`
+  (couleur unie ou blanc), `*Static*`, `*Dynamic*` ; jamais dans la liste. `*Solid*` sert de
+  valeur « Aucun » dans la liste Gladys : pas de collision possible avec un effet.
+- **Flux d'événements** `GET /api/v1/<jeton>/events?id=1,3,4` (SSE) : la ligne `id:` porte le
+  **type** (1 état, 2 disposition, 3 effet, 4 geste), `data:` `{ "events": [ … ] }`. État : `attr`
+  1 `on`, 2 `brightness`, 3 `hue`, 4 `sat`, 5 `ct`, 6 `colorMode`. Geste : `gesture` 0 simple tape,
+  1 double tape, 2-5 balayages haut/bas/gauche/droite, `panelId` (-1 pour un balayage). Le cadrage
+  de la consigne (« 3 gestes, 4 toucher par panneau ») était inexact : le toucher par panneau en
+  temps réel est un flux **UDP** vers un port du client (`TouchEventsPort`), injoignable depuis le
+  pont Docker ; non géré.
+- Le conteneur ouvre le flux (TCP sortant) : il traverse le pont. Node `fetch` coupe un corps muet
+  après 300 s (`bodyTimeout`) : le flux se rouvre tout seul, ce n'est pas une panne. Un modèle
+  inconnu qui refuserait `id=4` (HTTP 4xx) est réabonné sans les gestes.
+
+**Découverte**
+
+- mDNS `_nanoleafapi._tcp` et `_nanoleafms._tcp` (TXT `id`, `md`, `srcvers`), SSDP
+  `nanoleaf_aurora:light` (en-têtes `Location`, `nl-deviceid`, `nl-devicename`) pour les anciens
+  Light Panels. Le cœur ne cherche que la **première** entrée `ssdp`, et une seule recherche à la
+  fois par intégration (409) : mDNS puis SSDP, l'une après l'autre.
+- L'`id` mDNS n'est pas le numéro de série : on l'apprend quand l'adresse correspond, puis il suit
+  un contrôleur qui change d'adresse ; sans lui, le jeton d'un contrôleur perdu est essayé sur les
+  adresses inconnues.
+
+**Choix de conception**
+
+- Push d'abord (flux SSE), lecture complète chaque minute par minuteur interne
+  (`should_poll: false`), heartbeat 6 h via `publishChangedStates`. Injoignable après 2 lectures
+  sans réponse (tout de suite pour un contrôleur connu de `/data` muet au démarrage) : éclairage
+  à 0, « Connecté » à 0, badge `unreachable`.
+- « Connecté » en `presence-sensor/binary` (comme gladys-ping-wol) : utilisable en condition de
+  scène.
+- Pas de déclencheur « changé hors de Gladys » : les états suivent déjà en direct. Le seul
+  déclencheur est le geste, qui n'est pas un état.
+- « Afficher une couleur » rend la main tout de suite et restaure par minuteur ; une commande de
+  Gladys sur l'appareil annule la restauration, un second flash garde l'état d'avant le premier.

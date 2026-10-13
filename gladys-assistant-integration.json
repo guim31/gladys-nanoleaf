@@ -1,147 +1,434 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Nanoleaf",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Nanoleaf panels on the local network: colors, whites, effects, touch gestures.",
+    "fr": "Panneaux Nanoleaf en réseau local : couleurs, blancs, effets, gestes tactiles.",
+    "de": "Nanoleaf-Panels im lokalen Netzwerk: Farben, Weißtöne, Effekte, Touch-Gesten.",
+    "es": "Paneles Nanoleaf en la red local: colores, blancos, efectos, gestos táctiles."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-nanoleaf:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-nanoleaf/main/cover.png",
+  "categories": ["lighting"],
+  "transports": ["local"],
+  "network_discovery": [
+    {
+      "type": "mdns",
+      "service": "_nanoleafapi._tcp"
+    },
+    {
+      "type": "mdns",
+      "service": "_nanoleafms._tcp"
+    },
+    {
+      "type": "ssdp",
+      "st": "nanoleaf_aurora:light"
+    }
+  ],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Pairing your Nanoleaf",
+        "fr": "Appairer votre Nanoleaf",
+        "de": "Dein Nanoleaf koppeln",
+        "es": "Emparejar su Nanoleaf"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Nanoleaf panels on the same network as Gladys are found automatically. To pair one: hold its power button 5 to 7 seconds until the lights flash, then click \"Pair\" below within 30 seconds. Then add it from the Discovery tab.",
+        "fr": "Les panneaux Nanoleaf du même réseau que Gladys sont trouvés automatiquement. Pour en appairer un : maintenez son bouton marche 5 à 7 secondes jusqu'à ce que les lumières clignotent, puis cliquez sur « Appairer » ci-dessous dans les 30 secondes. Ajoutez-le ensuite depuis l'onglet Découverte.",
+        "de": "Nanoleaf-Panels im selben Netzwerk wie Gladys werden automatisch gefunden. Zum Koppeln: Halte die Ein-/Aus-Taste 5 bis 7 Sekunden gedrückt, bis die Lichter blinken, und klicke dann innerhalb von 30 Sekunden unten auf „Koppeln“. Füge es danach im Tab „Entdecken“ hinzu.",
+        "es": "Los paneles Nanoleaf de la misma red que Gladys se encuentran automáticamente. Para emparejar uno: mantenga pulsado su botón de encendido de 5 a 7 segundos hasta que las luces parpadeen y haga clic en «Emparejar» abajo en los 30 segundos siguientes. Después, añádalo desde la pestaña Descubrir."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-nanoleaf/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "hosts",
+      "type": "string",
+      "label": {
+        "en": "IP addresses of Nanoleaf controllers",
+        "fr": "Adresses IP des contrôleurs Nanoleaf",
+        "de": "IP-Adressen der Nanoleaf-Controller",
+        "es": "Direcciones IP de los controladores Nanoleaf"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "description": {
+        "en": "Optional, separated by commas. Only needed for the controllers automatic discovery does not find.",
+        "fr": "Facultatif, séparées par des virgules. Seulement pour les contrôleurs que la découverte automatique ne trouve pas.",
+        "de": "Optional, durch Kommas getrennt. Nur für Controller nötig, die die automatische Erkennung nicht findet.",
+        "es": "Opcional, separadas por comas. Solo para los controladores que el descubrimiento automático no encuentra."
+      },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50",
+        "fr": "ex. 192.168.1.50",
+        "de": "z. B. 192.168.1.50",
+        "es": "p. ej. 192.168.1.50"
+      },
+      "required": false,
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "label": {
+        "en": "Language of the device names",
+        "fr": "Langue des noms des appareils",
+        "de": "Sprache der Gerätenamen",
+        "es": "Idioma de los nombres de los dispositivos"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Names given to the features of new devices (Light, Brightness, Effect...).",
+        "fr": "Noms donnés aux fonctionnalités des nouveaux appareils (Éclairage, Luminosité, Effet…).",
+        "de": "Namen, die den Funktionen neuer Geräte gegeben werden (Licht, Helligkeit, Effekt…).",
+        "es": "Nombres dados a las funciones de los nuevos dispositivos (Luz, Brillo, Efecto…)."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "pair",
+      "label": {
+        "en": "Pair",
+        "fr": "Appairer",
+        "de": "Koppeln",
+        "es": "Emparejar"
+      },
+      "description": {
+        "en": "First hold the power button of the Nanoleaf 5 to 7 seconds until the lights flash, then click within 30 seconds.",
+        "fr": "Maintenez d'abord le bouton marche du Nanoleaf 5 à 7 secondes jusqu'à ce que les lumières clignotent, puis cliquez dans les 30 secondes.",
+        "de": "Halte zuerst die Ein-/Aus-Taste des Nanoleaf 5 bis 7 Sekunden gedrückt, bis die Lichter blinken, und klicke dann innerhalb von 30 Sekunden.",
+        "es": "Primero mantenga pulsado el botón de encendido del Nanoleaf de 5 a 7 segundos hasta que las luces parpadeen y haga clic en los 30 segundos siguientes."
+      },
+      "timeout_seconds": 45,
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "IP address (optional)",
+            "fr": "Adresse IP (facultatif)",
+            "de": "IP-Adresse (optional)",
+            "es": "Dirección IP (opcional)"
+          },
+          "description": {
+            "en": "Leave empty to pair the Nanoleaf found on the network.",
+            "fr": "Laissez vide pour appairer le Nanoleaf trouvé sur le réseau.",
+            "de": "Leer lassen, um das im Netzwerk gefundene Nanoleaf zu koppeln.",
+            "es": "Déjelo vacío para emparejar el Nanoleaf encontrado en la red."
+          },
+          "placeholder": {
+            "en": "e.g. 192.168.1.50",
+            "fr": "ex. 192.168.1.50",
+            "de": "z. B. 192.168.1.50",
+            "es": "p. ej. 192.168.1.50"
+          }
         }
       ]
+    },
+    {
+      "key": "search",
+      "label": {
+        "en": "Search for Nanoleaf controllers",
+        "fr": "Rechercher les contrôleurs Nanoleaf",
+        "de": "Nanoleaf-Controller suchen",
+        "es": "Buscar controladores Nanoleaf"
+      },
+      "description": {
+        "en": "Looks for Nanoleaf controllers again and reports the paired ones and the ones to pair.",
+        "fr": "Recherche à nouveau les contrôleurs Nanoleaf et liste ceux appairés et ceux à appairer.",
+        "de": "Sucht erneut nach Nanoleaf-Controllern und listet die gekoppelten und die zu koppelnden auf.",
+        "es": "Busca de nuevo los controladores Nanoleaf e indica los emparejados y los que faltan por emparejar."
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "gesture",
+      "label": {
+        "en": "Gesture on a Nanoleaf",
+        "fr": "Geste sur un Nanoleaf",
+        "de": "Geste auf einem Nanoleaf",
+        "es": "Gesto en un Nanoleaf"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A tap or a swipe on the touch panels (Canvas, Shapes, Elements).",
+        "fr": "Une tape ou un balayage sur les panneaux tactiles (Canvas, Shapes, Elements).",
+        "de": "Ein Tippen oder Wischen auf den Touch-Panels (Canvas, Shapes, Elements).",
+        "es": "Un toque o un deslizamiento en los paneles táctiles (Canvas, Shapes, Elements)."
       },
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": {
+            "en": "Nanoleaf",
+            "fr": "Nanoleaf",
+            "de": "Nanoleaf",
+            "es": "Nanoleaf"
+          }
         },
         {
-          "key": "target",
+          "key": "gesture",
           "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "label": {
+            "en": "Gesture",
+            "fr": "Geste",
+            "de": "Geste",
+            "es": "Gesto"
+          },
+          "description": {
+            "en": "Leave empty for every gesture.",
+            "fr": "Laisser vide pour tous les gestes.",
+            "de": "Leer lassen für alle Gesten.",
+            "es": "Déjelo vacío para todos los gestos."
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "single_tap",
+              "label": {
+                "en": "Single tap",
+                "fr": "Simple tape",
+                "de": "Einfaches Tippen",
+                "es": "Toque simple"
+              }
+            },
+            {
+              "value": "double_tap",
+              "label": {
+                "en": "Double tap",
+                "fr": "Double tape",
+                "de": "Doppeltippen",
+                "es": "Doble toque"
+              }
+            },
+            {
+              "value": "swipe_up",
+              "label": {
+                "en": "Swipe up",
+                "fr": "Balayage vers le haut",
+                "de": "Nach oben wischen",
+                "es": "Deslizar hacia arriba"
+              }
+            },
+            {
+              "value": "swipe_down",
+              "label": {
+                "en": "Swipe down",
+                "fr": "Balayage vers le bas",
+                "de": "Nach unten wischen",
+                "es": "Deslizar hacia abajo"
+              }
+            },
+            {
+              "value": "swipe_left",
+              "label": {
+                "en": "Swipe left",
+                "fr": "Balayage vers la gauche",
+                "de": "Nach links wischen",
+                "es": "Deslizar a la izquierda"
+              }
+            },
+            {
+              "value": "swipe_right",
+              "label": {
+                "en": "Swipe right",
+                "fr": "Balayage vers la droite",
+                "de": "Nach rechts wischen",
+                "es": "Deslizar a la derecha"
+              }
+            }
           ]
+        },
+        {
+          "key": "panel",
+          "type": "number",
+          "label": {
+            "en": "Panel number",
+            "fr": "Numéro du panneau",
+            "de": "Panel-Nummer",
+            "es": "Número del panel"
+          },
+          "description": {
+            "en": "Taps only. Tap the panel, then read its number in the Nanoleaf widget. Leave empty for any panel.",
+            "fr": "Tapes seulement. Tapez le panneau puis lisez son numéro dans le widget Nanoleaf. Laisser vide pour tous.",
+            "de": "Nur Tippen. Tippe auf das Panel und lies seine Nummer im Nanoleaf-Widget ab. Leer lassen für alle.",
+            "es": "Solo toques. Toque el panel y lea su número en el widget Nanoleaf. Déjelo vacío para cualquier panel."
+          },
+          "min": 0,
+          "max": 65535
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "gesture",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Gesture (single_tap, double_tap, swipe_up...)",
+            "fr": "Geste (single_tap, double_tap, swipe_up…)",
+            "de": "Geste (single_tap, double_tap, swipe_up…)",
+            "es": "Gesto (single_tap, double_tap, swipe_up…)"
+          }
+        },
+        {
+          "key": "panel",
+          "type": "number",
+          "label": {
+            "en": "Panel number",
+            "fr": "Numéro du panneau",
+            "de": "Panel-Nummer",
+            "es": "Número del panel"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "run_effect",
+      "label": {
+        "en": "Start a Nanoleaf effect",
+        "fr": "Lancer un effet Nanoleaf",
+        "de": "Nanoleaf-Effekt starten",
+        "es": "Iniciar un efecto Nanoleaf"
+      },
       "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+        "en": "Starts an effect of the panels by its name, as in the Nanoleaf app, with an optional brightness.",
+        "fr": "Lance un effet des panneaux par son nom, comme dans l'application Nanoleaf, avec une luminosité facultative.",
+        "de": "Startet einen Effekt der Panels über seinen Namen wie in der Nanoleaf-App, mit optionaler Helligkeit.",
+        "es": "Inicia un efecto de los paneles por su nombre, como en la aplicación Nanoleaf, con un brillo opcional."
+      },
+      "timeout_seconds": 20,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Nanoleaf",
+            "fr": "Nanoleaf",
+            "de": "Nanoleaf",
+            "es": "Nanoleaf"
+          },
+          "required": true
+        },
+        {
+          "key": "effect",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Effect name",
+            "fr": "Nom de l'effet",
+            "de": "Effektname",
+            "es": "Nombre del efecto"
+          },
+          "placeholder": {
+            "en": "e.g. Northern Lights",
+            "fr": "ex. Northern Lights",
+            "de": "z. B. Northern Lights",
+            "es": "p. ej. Northern Lights"
+          }
+        },
+        {
+          "key": "brightness",
+          "type": "number",
+          "required": false,
+          "label": {
+            "en": "Brightness (%)",
+            "fr": "Luminosité (%)",
+            "de": "Helligkeit (%)",
+            "es": "Brillo (%)"
+          },
+          "description": {
+            "en": "Leave empty to keep the current one.",
+            "fr": "Laisser vide pour garder l'actuelle.",
+            "de": "Leer lassen, um die aktuelle zu behalten.",
+            "es": "Déjelo vacío para mantener el actual."
+          },
+          "min": 1,
+          "max": 100
+        }
+      ],
+      "outputs": [
+        {
+          "key": "effect",
+          "type": "string",
+          "label": {
+            "en": "Effect started",
+            "fr": "Effet lancé",
+            "de": "Gestarteter Effekt",
+            "es": "Efecto iniciado"
+          }
+        }
+      ]
+    },
+    {
+      "key": "show_color",
+      "label": {
+        "en": "Show a color on a Nanoleaf",
+        "fr": "Afficher une couleur sur un Nanoleaf",
+        "de": "Farbe auf einem Nanoleaf zeigen",
+        "es": "Mostrar un color en un Nanoleaf"
+      },
+      "description": {
+        "en": "Shows a color for a few seconds, then brings back what the panels showed before.",
+        "fr": "Affiche une couleur quelques secondes, puis remet ce que les panneaux affichaient avant.",
+        "de": "Zeigt einige Sekunden lang eine Farbe und stellt dann wieder her, was die Panels vorher zeigten.",
+        "es": "Muestra un color unos segundos y luego vuelve a lo que mostraban los paneles."
       },
       "timeout_seconds": 15,
       "fields": [
@@ -149,29 +436,222 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "Nanoleaf",
+            "fr": "Nanoleaf",
+            "de": "Nanoleaf",
+            "es": "Nanoleaf"
+          },
           "required": true
-        }
-      ],
-      "outputs": [
+        },
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "color",
+          "type": "select",
+          "required": true,
+          "default": "red",
+          "label": {
+            "en": "Color",
+            "fr": "Couleur",
+            "de": "Farbe",
+            "es": "Color"
+          },
+          "options": [
+            {
+              "value": "red",
+              "label": {
+                "en": "Red",
+                "fr": "Rouge",
+                "de": "Rot",
+                "es": "Rojo"
+              }
+            },
+            {
+              "value": "orange",
+              "label": {
+                "en": "Orange",
+                "fr": "Orange",
+                "de": "Orange",
+                "es": "Naranja"
+              }
+            },
+            {
+              "value": "yellow",
+              "label": {
+                "en": "Yellow",
+                "fr": "Jaune",
+                "de": "Gelb",
+                "es": "Amarillo"
+              }
+            },
+            {
+              "value": "green",
+              "label": {
+                "en": "Green",
+                "fr": "Vert",
+                "de": "Grün",
+                "es": "Verde"
+              }
+            },
+            {
+              "value": "cyan",
+              "label": {
+                "en": "Cyan",
+                "fr": "Cyan",
+                "de": "Cyan",
+                "es": "Cian"
+              }
+            },
+            {
+              "value": "blue",
+              "label": {
+                "en": "Blue",
+                "fr": "Bleu",
+                "de": "Blau",
+                "es": "Azul"
+              }
+            },
+            {
+              "value": "purple",
+              "label": {
+                "en": "Purple",
+                "fr": "Violet",
+                "de": "Lila",
+                "es": "Morado"
+              }
+            },
+            {
+              "value": "pink",
+              "label": {
+                "en": "Pink",
+                "fr": "Rose",
+                "de": "Pink",
+                "es": "Rosa"
+              }
+            },
+            {
+              "value": "white",
+              "label": {
+                "en": "White",
+                "fr": "Blanc",
+                "de": "Weiß",
+                "es": "Blanco"
+              }
+            }
+          ]
+        },
+        {
+          "key": "custom_color",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Other color (#RRGGBB)",
+            "fr": "Autre couleur (#RRGGBB)",
+            "de": "Andere Farbe (#RRGGBB)",
+            "es": "Otro color (#RRGGBB)"
+          },
+          "description": {
+            "en": "Replaces the color above when filled in.",
+            "fr": "Remplace la couleur ci-dessus si elle est remplie.",
+            "de": "Ersetzt die Farbe oben, wenn sie ausgefüllt ist.",
+            "es": "Sustituye el color de arriba si se rellena."
+          },
+          "placeholder": {
+            "en": "e.g. #FF8800",
+            "fr": "ex. #FF8800",
+            "de": "z. B. #FF8800",
+            "es": "p. ej. #FF8800"
+          }
+        },
+        {
+          "key": "duration",
+          "type": "number",
+          "required": true,
+          "default": 10,
+          "label": {
+            "en": "Duration (seconds)",
+            "fr": "Durée (secondes)",
+            "de": "Dauer (Sekunden)",
+            "es": "Duración (segundos)"
+          },
+          "min": 1,
+          "max": 3600
+        },
+        {
+          "key": "brightness",
+          "type": "number",
+          "required": false,
+          "label": {
+            "en": "Brightness (%)",
+            "fr": "Luminosité (%)",
+            "de": "Helligkeit (%)",
+            "es": "Brillo (%)"
+          },
+          "description": {
+            "en": "Leave empty to keep the current one.",
+            "fr": "Laisser vide pour garder l'actuelle.",
+            "de": "Leer lassen, um die aktuelle zu behalten.",
+            "es": "Déjelo vacío para mantener el actual."
+          },
+          "min": 1,
+          "max": 100
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "nanoleaf",
+      "label": {
+        "en": "Nanoleaf",
+        "fr": "Nanoleaf",
+        "de": "Nanoleaf",
+        "es": "Nanoleaf"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Favorite effects in one tap, what the panels show, the last gesture.",
+        "fr": "Effets favoris en un geste, ce qu'affichent les panneaux, le dernier geste.",
+        "de": "Lieblingseffekte per Tippen, was die Panels zeigen, die letzte Geste.",
+        "es": "Efectos favoritos con un toque, lo que muestran los paneles, el último gesto."
+      },
+      "icon": "grid",
+      "action_timeout_seconds": 15,
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Nanoleaf",
+            "fr": "Nanoleaf",
+            "de": "Nanoleaf",
+            "es": "Nanoleaf"
+          },
+          "required": true
+        },
+        {
+          "key": "effects",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Favorite effects",
+            "fr": "Effets favoris",
+            "de": "Lieblingseffekte",
+            "es": "Efectos favoritos"
+          },
+          "description": {
+            "en": "Up to four effect names, separated by commas. Empty: the first three of the list.",
+            "fr": "Jusqu'à quatre noms d'effets, séparés par des virgules. Vide : les trois premiers de la liste.",
+            "de": "Bis zu vier Effektnamen, durch Kommas getrennt. Leer: die ersten drei der Liste.",
+            "es": "Hasta cuatro nombres de efectos, separados por comas. Vacío: los tres primeros de la lista."
+          },
+          "placeholder": {
+            "en": "e.g. Northern Lights, Forest",
+            "fr": "ex. Northern Lights, Forest",
+            "de": "z. B. Northern Lights, Forest",
+            "es": "p. ej. Northern Lights, Forest"
+          }
+        }
+      ]
     }
   ]
 }

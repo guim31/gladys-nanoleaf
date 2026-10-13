@@ -30,6 +30,21 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration keeps and where:
+
+- **`/data/nanoleaf.json`**, in the integration's volume (readable by the
+  container user only): for each paired controller, its address, the access
+  token given by the pairing, and its last description (name, model, firmware,
+  effects). The token lets anyone on the local network who reads it control
+  the panels; it never appears in the configuration, the logs or the messages
+  sent to Gladys. Deleting the file means pairing again.
+- **Configuration** (in Gladys): the IP addresses typed, and the language. No
+  secret.
+
+Network: plain HTTP to the controllers on the local network (port 16021, the
+Nanoleaf OpenAPI has no TLS), and the Gladys host API. Discovery goes through
+Gladys (mDNS, SSDP). No cloud service, no outbound Internet connection.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the Nanoleaf controllers and their firmware.

@@ -1,0 +1,141 @@
+{
+  "name": "Light Panels 0A:1B:2C",
+  "serialNo": "S16330A0001",
+  "manufacturer": "Nanoleaf",
+  "firmwareVersion": "3.0.6",
+  "hardwareVersion": "1.6-2",
+  "model": "NL22",
+  "cloudHash": {},
+  "discovery": {},
+  "effects": {
+    "effectsList": [
+      "Color Burst",
+      "Flames",
+      "Forest",
+      "Inner Peace",
+      "Nemo",
+      "Northern Lights",
+      "Romantic",
+      "Snowfall"
+    ],
+    "select": "Flames"
+  },
+  "firmwareUpgrade": {},
+  "panelLayout": {
+    "globalOrientation": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "layout": {
+      "numPanels": 9,
+      "sideLength": 150,
+      "positionData": [
+        {
+          "panelId": 1000,
+          "x": 0,
+          "y": 0,
+          "o": 0,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1137,
+          "x": 150,
+          "y": 150,
+          "o": 60,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1274,
+          "x": 300,
+          "y": 0,
+          "o": 120,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1411,
+          "x": 450,
+          "y": 150,
+          "o": 180,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1548,
+          "x": 600,
+          "y": 0,
+          "o": 240,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1685,
+          "x": 750,
+          "y": 150,
+          "o": 300,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1822,
+          "x": 900,
+          "y": 0,
+          "o": 0,
+          "shapeType": 0
+        },
+        {
+          "panelId": 1959,
+          "x": 1050,
+          "y": 150,
+          "o": 60,
+          "shapeType": 0
+        },
+        {
+          "panelId": 2096,
+          "x": 1200,
+          "y": 0,
+          "o": 120,
+          "shapeType": 0
+        }
+      ]
+    }
+  },
+  "schedules": {},
+  "state": {
+    "brightness": {
+      "value": 100,
+      "max": 100,
+      "min": 0
+    },
+    "colorMode": "effect",
+    "ct": {
+      "value": 4000,
+      "max": 6500,
+      "min": 1200
+    },
+    "hue": {
+      "value": 0,
+      "max": 360,
+      "min": 0
+    },
+    "on": {
+      "value": true
+    },
+    "sat": {
+      "value": 0,
+      "max": 100,
+      "min": 0
+    }
+  },
+  "rhythm": {
+    "rhythmConnected": false,
+    "rhythmActive": false,
+    "rhythmId": 0,
+    "hardwareVersion": "",
+    "firmwareVersion": "",
+    "auxAvailable": false,
+    "rhythmMode": 0,
+    "rhythmPos": {
+      "x": 0,
+      "y": 0,
+      "o": 0
+    }
+  }
+}
